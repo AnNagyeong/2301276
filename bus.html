@@ -2,8 +2,8 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>서울시 실시간 버스 도착 & 노선도 웹앱</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>실시간 지정 버스 도착 알림 & 노선도</title>
   <style>
     :root {
       --bg-color: #f2f4f7;
@@ -14,452 +14,199 @@
       --accent-blue: #007aff;
       --accent-green: #34c759;
       --accent-red: #ff3b30;
-      --accent-yellow: #ffcc00;
       --bus-blue: #0068b7;
       --bus-green: #53b332;
       --bus-red: #e60012;
       --bus-yellow: #ffb400;
     }
 
-    [data-theme="dark"] {
-      --bg-color: #121212;
-      --card-bg: #1e1e1e;
-      --text-main: #f5f5f7;
-      --text-sub: #a1a1a6;
-      --border-color: #333336;
-    }
-
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-    body { background-color: var(--bg-color); color: var(--text-main); transition: background-color 0.3s, color 0.3s; padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
+    body { background-color: var(--bg-color); color: var(--text-main); padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
     
-    .app-container { width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 20px; }
+    .app-container { width: 100%; max-width: 850px; display: flex; flex-direction: column; gap: 16px; }
     
-    /* 헤더 영역 */
-    header { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 16px 20px; border-radius: 16px; border: 1px solid var(--border-color); }
-    header h1 { font-size: 1.3rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-    .header-controls { display: flex; gap: 10px; align-items: center; }
+    /* 헤더 */
+    header { background: var(--card-bg); padding: 18px 20px; border-radius: 16px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+    header h1 { font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    
+    /* 설정 카드 (API Key 입력 및 저장) */
+    .config-section { background: var(--card-bg); padding: 16px 20px; border-radius: 16px; border: 1px solid var(--border-color); }
+    .config-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 8px; color: var(--text-sub); display: flex; justify-content: space-between; align-items: center; }
+    .key-status { font-size: 0.8rem; font-weight: bold; padding: 2px 8px; border-radius: 10px; }
+    .status-active { background: #e3f9e5; color: #1f9d55; }
+    .status-none { background: #ffebee; color: #c62828; }
 
-    /* 버튼 & 입력 스타일 */
-    .btn { padding: 8px 14px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 0.9rem; }
-    .btn-primary { background: var(--accent-blue); color: white; }
-    .btn-primary:hover { opacity: 0.9; }
-    .btn-secondary { background: var(--border-color); color: var(--text-main); }
-
-    /* 검색 섹션 */
+    /* 검색창 및 입력 박스 */
     .search-section { background: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--border-color); }
-    .input-wrapper { display: flex; gap: 10px; margin-bottom: 12px; }
-    .input-wrapper input { flex: 1; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); font-size: 1rem; }
-    .input-wrapper input:focus { outline: 2px solid var(--accent-blue); }
+    .input-group { display: flex; gap: 8px; }
+    input[type="text"] { flex: 1; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); font-size: 0.95rem; }
+    input[type="text"]:focus { outline: 2px solid var(--accent-blue); }
     
-    /* 데모 정류소 빠른 선택 칩 */
-    .demo-chips { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; font-size: 0.85rem; color: var(--text-sub); }
-    .chip { padding: 4px 10px; background: var(--bg-color); border-radius: 20px; cursor: pointer; border: 1px solid var(--border-color); transition: 0.2s; }
-    .chip:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+    .btn { padding: 10px 16px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 0.9rem; white-space: nowrap; }
+    .btn-primary { background: var(--accent-blue); color: white; }
+    .btn-primary:hover { background: #0056b3; }
+    .btn-secondary { background: var(--border-color); color: var(--text-main); }
+    .btn-secondary:hover { background: #d1d1d6; }
 
-    /* 레이아웃 분할 (도착 리스트 + 노선도 시각화) */
-    .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    @media (max-width: 768px) { .main-grid { grid-template-columns: 1fr; } }
+    /* 메인 컨텐츠 (목록 & 노선도 분할) */
+    .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 768px) { .content-grid { grid-template-columns: 1fr; } }
 
-    .panel { background: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--border-color); min-height: 400px; display: flex; flex-direction: column; }
-    .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); }
-    .panel-title { font-size: 1.1rem; font-weight: 700; }
+    .panel { background: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--border-color); min-height: 420px; display: flex; flex-direction: column; }
+    .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); }
+    .panel-title { font-size: 1.05rem; font-weight: 700; }
 
-    /* 자동 갱신 타이머 바 */
-    .timer-bar { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-sub); }
-    .badge-count { background: var(--accent-blue); color: white; padding: 2px 8px; border-radius: 10px; font-weight: bold; }
+    /* 타이머 */
+    .timer-info { font-size: 0.8rem; color: var(--text-sub); display: flex; align-items: center; gap: 6px; }
+    .count-badge { background: var(--accent-blue); color: white; padding: 1px 6px; border-radius: 8px; font-weight: bold; }
 
-    /* 버스 도착 카드 리스트 */
-    .bus-list { display: flex; flex-direction: column; gap: 12px; overflow-y: auto; max-height: 500px; }
-    .bus-item { padding: 14px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--bg-color); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: transform 0.15s, border-color 0.15s; }
-    .bus-item:hover { transform: translateY(-2px); border-color: var(--accent-blue); }
-    .bus-item.active { border: 2px solid var(--accent-blue); background: rgba(0, 122, 255, 0.05); }
+    /* 버스 도착 아이템 리스트 */
+    .bus-list { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; max-height: 450px; }
+    .bus-item { padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--bg-color); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.15s; }
+    .bus-item:hover { border-color: var(--accent-blue); transform: translateY(-1px); }
+    .bus-item.selected { border: 2px solid var(--accent-blue); background: #f0f7ff; }
 
-    .bus-type { font-size: 0.75rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; color: white; display: inline-block; margin-bottom: 4px; }
-    .type-blue { background-color: var(--bus-blue); }
-    .type-green { background-color: var(--bus-green); }
-    .type-red { background-color: var(--bus-red); }
-    .type-yellow { background-color: var(--bus-yellow); }
+    .bus-badge { font-size: 0.7rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; color: white; margin-bottom: 4px; display: inline-block; }
+    .bg-blue { background-color: var(--bus-blue); }
+    .bg-green { background-color: var(--bus-green); }
+    .bg-red { background-color: var(--bus-red); }
+    .bg-yellow { background-color: var(--bus-yellow); }
 
-    .bus-number { font-size: 1.2rem; font-weight: 800; }
-    .bus-time-info { text-align: right; }
-    .primary-time { font-size: 1rem; font-weight: 700; color: var(--accent-red); }
-    .secondary-time { font-size: 0.8rem; color: var(--text-sub); margin-top: 2px; }
+    .bus-name { font-size: 1.15rem; font-weight: 800; }
+    .bus-arrival-time { text-align: right; }
+    .time-main { font-size: 0.95rem; font-weight: 700; color: var(--accent-red); }
+    .time-sub { font-size: 0.75rem; color: var(--text-sub); margin-top: 2px; }
 
-    /* 노선도 비주얼 타임라인 */
-    .route-timeline { display: flex; flex-direction: column; gap: 0; padding: 10px 0; overflow-y: auto; max-height: 500px; position: relative; }
-    .station-node { display: flex; align-items: center; gap: 16px; position: relative; padding: 12px 0 12px 20px; }
+    /* 노선 타임라인 시각화 */
+    .timeline { display: flex; flex-direction: column; padding: 10px 0; overflow-y: auto; max-height: 450px; }
+    .timeline-node { display: flex; align-items: center; gap: 14px; position: relative; padding: 12px 0 12px 18px; }
+    .timeline-node::before { content: ''; position: absolute; left: 24px; top: 0; bottom: 0; width: 3px; background: var(--border-color); z-index: 1; }
+    .timeline-node:first-child::before { top: 50%; }
+    .timeline-node:last-child::before { bottom: 50%; }
+
+    .node-dot { width: 16px; height: 16px; border-radius: 50%; background: var(--card-bg); border: 3px solid var(--text-sub); z-index: 2; flex-shrink: 0; }
+    .timeline-node.target .node-dot { border-color: var(--accent-blue); background: var(--accent-blue); }
+
+    .node-text { flex: 1; }
+    .node-station { font-size: 0.9rem; font-weight: 600; }
+    .node-sub { font-size: 0.75rem; color: var(--text-sub); }
+
+    .bus-location-tag { background: var(--accent-blue); color: white; padding: 3px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
     
-    /* 타임라인 세로선 */
-    .station-node::before { content: ''; position: absolute; left: 28px; top: 0; bottom: 0; width: 4px; background: var(--border-color); z-index: 1; }
-    .station-node:first-child::before { top: 50%; }
-    .station-node:last-child::before { bottom: 50%; }
-
-    /* 정류장 점 원 */
-    .node-dot { width: 20px; height: 20px; border-radius: 50%; background: var(--card-bg); border: 4px solid var(--text-sub); z-index: 2; position: relative; flex-shrink: 0; }
-    .station-node.current .node-dot { border-color: var(--accent-blue); background: var(--accent-blue); }
-
-    .node-info { flex: 1; }
-    .node-name { font-size: 0.95rem; font-weight: 600; }
-    .node-ars { font-size: 0.75rem; color: var(--text-sub); }
-
-    /* 버스 위치 아이콘 박스 */
-    .bus-badge-on-route { position: absolute; right: 10px; background: var(--accent-blue); color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); animation: pulse 1.5s infinite; }
-    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-
-    /* 혼잡도 배지 */
-    .congestion { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
-    .congestion-smooth { background: #e3f9e5; color: #1f9d55; }
-    .congestion-normal { background: #fff8e1; color: #b78103; }
-    .congestion-crowded { background: #ffebee; color: #c62828; }
-
-    /* API 설정 모달 */
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 100; }
-    .modal { background: var(--card-bg); padding: 24px; border-radius: 16px; width: 90%; max-width: 450px; border: 1px solid var(--border-color); }
-    .modal h2 { margin-bottom: 12px; font-size: 1.2rem; }
-    .modal p { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 16px; line-height: 1.4; }
+    .empty-msg { text-align: center; color: var(--text-sub); margin-top: 50px; font-size: 0.9rem; line-height: 1.5; }
   </style>
 </head>
 <body>
 
 <div class="app-container">
-  <!-- 상단 헤더 -->
   <header>
-    <h1>🚌 서울 버스 실시간 도착 & 노선도</h1>
-    <div class="header-controls">
-      <button class="btn btn-secondary" onclick="toggleTheme()" id="themeBtn">🌙 야간모드</button>
-      <button class="btn btn-secondary" onclick="openModal()">⚙️ API 설정</button>
-    </div>
+    <h1>🚌 실시간 지정 버스 도착 알림</h1>
   </header>
 
-  <!-- 검색 및 데모 선택 -->
-  <section class="search-section">
-    <div class="input-wrapper">
-      <input type="text" id="arsIdInput" placeholder="정류소 고유번호 5자리 (예: 22012)" maxlength="5" />
-      <button class="btn btn-primary" onclick="searchStation()">조회</button>
+  <!-- 1. 공공데이터포털 API Key 저장 섹션 -->
+  <section class="config-section">
+    <div class="config-title">
+      <span>🔑 API 인증키 설정 (Decoding 일반 인증키)</span>
+      <span id="keyStatusBadge" class="key-status status-none">키 미등록</span>
     </div>
-    <div class="demo-chips">
-      <span>💡 데모 추천 정류장:</span>
-      <span class="chip" onclick="quickSearch('22012')">강남역 (22012)</span>
-      <span class="chip" onclick="quickSearch('14015')">홍대입구역 (14015)</span>
-      <span class="chip" onclick="quickSearch('19001')">여의도환승센터 (19001)</span>
+    <div class="input-group">
+      <input type="text" id="apiKeyInput" placeholder="공공데이터포털에서 발급받은 Decoding API Key를 입력하세요" />
+      <button class="btn btn-secondary" onclick="saveApiKey()">인증키 저장</button>
     </div>
   </section>
 
-  <!-- 메인 그리드 레이아웃 -->
-  <div class="main-grid">
+  <!-- 2. 정류소 고유번호(ARS-ID) 검색 섹션 -->
+  <section class="search-section">
+    <div class="config-title" style="margin-bottom:8px;">
+      <span>📍 정류소 조회</span>
+    </div>
+    <div class="input-group">
+      <input type="text" id="arsIdInput" placeholder="정류소 고유번호 5자리 입력 (예: 22012, 02001)" maxlength="5" />
+      <button class="btn btn-primary" onclick="searchStation()">버스 도착 조회</button>
+    </div>
+  </section>
+
+  <!-- 3. 실시간 버스 목록 및 노선도 타임라인 -->
+  <div class="content-grid">
     <!-- 왼쪽: 버스 도착 목록 -->
     <div class="panel">
       <div class="panel-header">
-        <div class="panel-title" id="stationTitle">정류소를 조회해 주세요</div>
-        <div class="timer-bar">
-          <span id="timerText">갱신까지 <span class="badge-count" id="countdown">15</span>초</span>
-          <button class="btn btn-secondary" style="padding:2px 8px; font-size:0.75rem;" onclick="toggleAutoRefresh()" id="pauseBtn">일시정지</button>
+        <div class="panel-title" id="stationNameDisplay">정류소를 검색해주세요</div>
+        <div class="timer-info">
+          <span>갱신 <span class="count-badge" id="countdown">15</span>초</span>
         </div>
       </div>
       <div class="bus-list" id="busList">
-        <p style="text-align: center; color: var(--text-sub); margin-top: 40px;">
-          상단에서 정류소 번호를 입력하거나<br>추천 정류장을 클릭하세요.
-        </p>
+        <div class="empty-msg">정류소 고유번호를 입력한 후<br>조회 버튼을 눌러주세요.</div>
       </div>
     </div>
 
-    <!-- 오른쪽: 실시간 버스 노선도 시각화 -->
+    <!-- 오른쪽: 선택 버스 실시간 노선 타임라인 -->
     <div class="panel">
       <div class="panel-header">
-        <div class="panel-title" id="routeTitle">버스 노선 타임라인</div>
-        <span style="font-size: 0.8rem; color: var(--text-sub);" id="routeSubtitle">버스를 선택하세요</span>
+        <div class="panel-title" id="selectedBusTitle">노선 정보</div>
       </div>
-      <div class="route-timeline" id="routeTimeline">
-        <p style="text-align: center; color: var(--text-sub); margin-top: 40px;">
-          좌측에서 버스를 선택하면<br>해당 노선의 실시간 위치가 표시됩니다.
-        </p>
+      <div class="timeline" id="routeTimeline">
+        <div class="empty-msg">좌측에서 버스를 선택하면<br>실시간 운행 위치가 표시됩니다.</div>
       </div>
-    </div>
-  </div>
-</div>
-
-<!-- API Key 설정 모달 -->
-<div class="modal-overlay" id="apiModal">
-  <div class="modal">
-    <h2>공공데이터포털 API Key 설정</h2>
-    <p>공공데이터포털(data.go.kr)에서 발급받은 '서울특별시_정류소정보조회 서비스' Decoding 키를 입력하세요. 입력하지 않으면 <b>시뮬레이션 데모 데이터</b>로 동작합니다.</p>
-    <div class="input-wrapper" style="margin-bottom: 16px;">
-      <input type="text" id="apiKeyInput" placeholder="API Key 입력 (선택)" />
-    </div>
-    <div style="display: flex; justify-content: flex-end; gap: 8px;">
-      <button class="btn btn-secondary" onclick="closeModal()">닫기</button>
-      <button class="btn btn-primary" onclick="saveApiKey()">저장</button>
     </div>
   </div>
 </div>
 
 <script>
-  // 애플리케이션 상태 관리
-  let apiKey = localStorage.getItem('BUS_API_KEY') || '';
+  // 상태 데이터
+  let savedApiKey = '';
   let currentArsId = '';
-  let selectedBusNo = null;
-  let countdownValue = 15;
-  let timerInterval = null;
-  let isPaused = false;
+  let fetchedBusData = [];
+  let selectedBus = null;
+  let countdown = 15;
+  let timerId = null;
 
-  // Mock (시뮬레이션) 데이터 - 공공데이터포털 API 미연결 시 사용
-  const MOCK_DATA = {
-    '22012': {
-      stationName: '강남역.강남역사거리',
-      buses: [
-        { busNo: '140', type: 'blue', typeName: '간선', arrmsg1: '2분후[1전역]', arrmsg2: '11분후[5전역]', congestion: '보통', lowPlate: true },
-        { busNo: '470', type: 'blue', typeName: '간선', arrmsg1: '5분후[3전역]', arrmsg2: '14분후[7전역]', congestion: '여유', lowPlate: false },
-        { busNo: '9401', type: 'red', typeName: '광역', arrmsg1: '7분후[4전역]', arrmsg2: '18분후[9전역]', congestion: '혼잡', lowPlate: false },
-        { busNo: '서초03', type: 'green', typeName: '지선', arrmsg1: '곧 도착', arrmsg2: '9분후[4전역]', congestion: '보통', lowPlate: true }
-      ]
-    },
-    '14015': {
-      stationName: '홍대입구역',
-      buses: [
-        { busNo: '271', type: 'blue', typeName: '간선', arrmsg1: '3분후[2전역]', arrmsg2: '12분후[6전역]', congestion: '여유', lowPlate: true },
-        { busNo: '7612', type: 'green', typeName: '지선', arrmsg1: '1분후[1전역]', arrmsg2: '8분후[4전역]', congestion: '혼잡', lowPlate: false },
-        { busNo: 'N26', type: 'yellow', typeName: '심야', arrmsg1: '15분후[8전역]', arrmsg2: '32분후[15전역]', congestion: '여유', lowPlate: true }
-      ]
-    },
-    '19001': {
-      stationName: '여의도환승센터 (1번승강장)',
-      buses: [
-        { busNo: '160', type: 'blue', typeName: '간선', arrmsg1: '곧 도착', arrmsg2: '10분후[5전역]', congestion: '보통', lowPlate: true },
-        { busNo: '8601', type: 'red', typeName: '직행', arrmsg1: '4분후[2전역]', arrmsg2: '15분후[7전역]', congestion: '혼잡', lowPlate: false }
-      ]
-    }
-  };
+  // 페이지 로드 시 저장된 API Key 복원
+  window.addEventListener('DOMContentLoaded', () => {
+    savedApiKey = localStorage.getItem('SEOUL_BUS_API_KEY') || '';
+    const keyInput = document.getElementById('apiKeyInput');
+    const badge = document.getElementById('keyStatusBadge');
 
-  // 노선도 시뮬레이션용 데이터 생성 함수
-  function generateMockRoute(busNo, currentStationName) {
-    const routeList = [
-      { name: '도봉산공영차고지', ars: '10001' },
-      { name: '수유역.강북구청', ars: '09002' },
-      { name: '혜화동로터리', ars: '01003' },
-      { name: '종로2가', ars: '01004' },
-      { name: currentStationName, ars: currentArsId || '22012' }, // 현재 검색 정류장
-      { name: '양재역.서초문화예술회관', ars: '22013' },
-      { name: '시민의숲.양재꽃시작', ars: '22014' }
-    ];
-
-    // 현재 버스가 어느 정류장에 위치해 있는지 무작위 또는 지정 배치
-    return routeList.map((st, idx) => ({
-      ...st,
-      hasBus: idx === 3 || idx === 0, // 종로2가 및 차고지에 버스 배치 시뮬레이션
-      isCurrentTarget: st.name === currentStationName
-    }));
-  }
-
-  // 초기화 함수
-  window.onload = () => {
-    if (apiKey) {
-      document.getElementById('apiKeyInput').value = apiKey;
-    }
-    quickSearch('22012'); // 기본으로 강남역 검색
-    startTimer();
-  };
-
-  // 정류소 검색
-  function searchStation() {
-    const arsId = document.getElementById('arsIdInput').value.trim();
-    if (!arsId || arsId.length !== 5) {
-      alert('올바른 5자리 정류소 고유번호(ARS-ID)를 입력해주세요.');
-      return;
-    }
-    fetchBusArrivals(arsId);
-  }
-
-  function quickSearch(arsId) {
-    document.getElementById('arsIdInput').value = arsId;
-    fetchBusArrivals(arsId);
-  }
-
-  // 버스 도착 정보 Fetching 함수 (API OR Mock)
-  async function fetchBusArrivals(arsId) {
-    currentArsId = arsId;
-    resetTimer();
-
-    const stationTitle = document.getElementById('stationTitle');
-    const busList = document.getElementById('busList');
-    busList.innerHTML = '<p style="text-align:center; margin-top:30px;">조회 중입니다...</p>';
-
-    // API Key가 등록된 경우 실제 공공데이터포털 API 호출
-    if (apiKey) {
-      try {
-        const proxyUrl = 'https://cors-anywhere.herokuapp.com/'; 
-        const targetUrl = `http://ws.bus.go.kr/api/rest/stationinfo/getStationByUidItem?serviceKey=${encodeURIComponent(apiKey)}&arsId=${arsId}&resultType=json`;
-        
-        const response = await fetch(proxyUrl + targetUrl);
-        const data = await response.json();
-        const itemList = data?.msgBody?.itemList;
-
-        if (itemList && itemList.length > 0) {
-          stationTitle.innerText = `${itemList[0].stnNm} (${arsId})`;
-          renderBusList(itemList.map(item => ({
-            busNo: item.rtNm,
-            type: getBusTypeClass(item.routeType),
-            typeName: item.routeType || '버스',
-            arrmsg1: item.arrmsg1,
-            arrmsg2: item.arrmsg2,
-            congestion: getCongestionText(item.rerideNum1),
-            lowPlate: item.busType1 === '1'
-          })), itemList[0].stnNm);
-          return;
-        }
-      } catch (err) {
-        console.warn('API 호출 실패. 데모 모드로 전환합니다.', err);
-      }
-    }
-
-    // API Key가 없거나 호출 실패 시 Mock 데이터 사용
-    const mock = MOCK_DATA[arsId] || {
-      stationName: `정류소 (${arsId})`,
-      buses: [
-        { busNo: '101', type: 'blue', typeName: '간선', arrmsg1: '3분후[1전역]', arrmsg2: '12분후[5전역]', congestion: '여유', lowPlate: true },
-        { busNo: '7011', type: 'green', typeName: '지선', arrmsg1: '6분후[3전역]', arrmsg2: '15분후[7전역]', congestion: '보통', lowPlate: false }
-      ]
-    };
-
-    stationTitle.innerText = `${mock.stationName} (${arsId})`;
-    renderBusList(mock.buses, mock.stationName);
-  }
-
-  // 버스 목록 렌더링
-  function renderBusList(buses, stationName) {
-    const busList = document.getElementById('busList');
-    busList.innerHTML = '';
-
-    buses.forEach((bus, idx) => {
-      const item = document.createElement('div');
-      item.className = `bus-item ${selectedBusNo === bus.busNo ? 'active' : ''}`;
-      item.onclick = () => selectBus(bus, stationName);
-
-      const congestionClass = bus.congestion === '여유' ? 'congestion-smooth' : (bus.congestion === '보통' ? 'congestion-normal' : 'congestion-crowded');
-
-      item.innerHTML = `
-        <div>
-          <span class="bus-type type-${bus.type}">${bus.typeName}</span>
-          ${bus.lowPlate ? '<span style="font-size:0.7rem; background:#e5e5ea; padding:1px 4px; border-radius:3px;">저상</span>' : ''}
-          <div class="bus-number">${bus.busNo}</div>
-        </div>
-        <div class="bus-time-info">
-          <div class="primary-time">${bus.arrmsg1}</div>
-          <div class="secondary-time">다음: ${bus.arrmsg2}</div>
-          <span class="congestion ${congestionClass}" style="margin-top:4px; inline-block;">${bus.congestion}</span>
-        </div>
-      `;
-      busList.appendChild(item);
-    });
-
-    // 첫 번째 버스 자동 선택
-    if (buses.length > 0 && !selectedBusNo) {
-      selectBus(buses[0], stationName);
-    }
-  }
-
-  // 버스 선택 시 오른쪽 노선 타임라인 생성
-  function selectBus(bus, stationName) {
-    selectedBusNo = bus.busNo;
-    
-    // 선택 액티브 클래스 갱신
-    document.querySelectorAll('.bus-item').forEach(el => el.classList.remove('active'));
-    event?.currentTarget?.classList.add('active');
-
-    document.getElementById('routeTitle').innerText = `${bus.busNo}번 버스 노선도`;
-    document.getElementById('routeSubtitle').innerText = `실시간 위치 업데이트 중`;
-
-    const routeData = generateMockRoute(bus.busNo, stationName);
-    renderRouteTimeline(routeData);
-  }
-
-  // 노선도 타임라인 렌더링
-  function renderRouteTimeline(routeData) {
-    const timeline = document.getElementById('routeTimeline');
-    timeline.innerHTML = '';
-
-    routeData.forEach(node => {
-      const nodeEl = document.createElement('div');
-      nodeEl.className = `station-node ${node.isCurrentTarget ? 'current' : ''}`;
-
-      nodeEl.innerHTML = `
-        <div class="node-dot"></div>
-        <div class="node-info">
-          <div class="node-name">${node.name} ${node.isCurrentTarget ? '📍(현재 정류소)' : ''}</div>
-          <div class="node-ars">ARS-ID: ${node.ars}</div>
-        </div>
-        ${node.hasBus ? `<div class="bus-badge-on-route">🚌 ${selectedBusNo}</div>` : ''}
-      `;
-      timeline.appendChild(nodeEl);
-    });
-  }
-
-  // 타이머 관련 로직
-  function startTimer() {
-    if (timerInterval) clearInterval(timerInterval);
-    timerInterval = setInterval(() => {
-      if (isPaused) return;
-      countdownValue--;
-      document.getElementById('countdown').innerText = countdownValue;
-
-      if (countdownValue <= 0) {
-        if (currentArsId) fetchBusArrivals(currentArsId);
-        resetTimer();
-      }
-    }, 1000);
-  }
-
-  function resetTimer() {
-    countdownValue = 15;
-    document.getElementById('countdown').innerText = countdownValue;
-  }
-
-  function toggleAutoRefresh() {
-    isPaused = !isPaused;
-    const btn = document.getElementById('pauseBtn');
-    btn.innerText = isPaused ? '재개' : '일시정지';
-  }
-
-  // 다크/라이트 테마 토글
-  function toggleTheme() {
-    const body = document.body;
-    const themeBtn = document.getElementById('themeBtn');
-    if (body.getAttribute('data-theme') === 'dark') {
-      body.removeAttribute('data-theme');
-      themeBtn.innerText = '🌙 야간모드';
+    if (savedApiKey) {
+      keyInput.value = savedApiKey;
+      badge.innerText = '저장됨';
+      badge.className = 'key-status status-active';
     } else {
-      body.setAttribute('data-theme', 'dark');
-      themeBtn.innerText = '☀️ 주간모드';
+      badge.innerText = '키 미등록';
+      badge.className = 'key-status status-none';
     }
-  }
 
-  // API 설정 모달 관련
-  function openModal() { document.getElementById('apiModal').style.display = 'flex'; }
-  function closeModal() { document.getElementById('apiModal').style.display = 'none'; }
+    startCountdownTimer();
+  });
+
+  // 1. API Key 저장 (LocalStorage 사용)
   function saveApiKey() {
     const key = document.getElementById('apiKeyInput').value.trim();
-    localStorage.setItem('BUS_API_KEY', key);
-    apiKey = key;
-    closeModal();
-    alert('API Key가 저장되었습니다.');
-    if (currentArsId) fetchBusArrivals(currentArsId);
+    if (!key) {
+      alert('올바른 API Key를 입력하세요.');
+      return;
+    }
+    localStorage.setItem('SEOUL_BUS_API_KEY', key);
+    savedApiKey = key;
+
+    const badge = document.getElementById('keyStatusBadge');
+    badge.innerText = '저장됨';
+    badge.className = 'key-status status-active';
+    alert('인증키가 브라우저에 성공적으로 저장되었습니다!');
+
+    if (currentArsId) {
+      searchStation();
+    }
   }
 
-  // 헬퍼 함수
-  function getBusTypeClass(typeStr) {
-    if (!typeStr) return 'blue';
-    if (typeStr.includes('지선')) return 'green';
-    if (typeStr.includes('광역') || typeStr.includes('직행')) return 'red';
-    if (typeStr.includes('순환') || typeStr.includes('마을')) return 'yellow';
-    return 'blue';
-  }
+  // 2. 정류소 버스 도착 정보 조회
+  async function searchStation() {
+    const arsId = document.getElementById('arsIdInput').value.trim();
+    if (!arsId) {
+      alert('정류소 고유번호(ARS-ID)를 입력해주세요.');
+      return;
+    }
 
-  function getCongestionText(num) {
-    if (num === '3') return '여유';
-    if (num === '4') return '보통';
-    if (num === '5') return '혼잡';
-    return '보통';
-  }
-</script>
-
-</body>
-</html>
+    if (!savedApiKey) {
+      alert('상단
