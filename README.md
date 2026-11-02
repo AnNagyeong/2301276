@@ -66,3 +66,5 @@ npm run dev
 
 현재 Pages: https://annagyeong.github.io/2301276/ (실제 API 수집 및 배포 성공). 수집 데이터 39,097건, 2026-11-02 18:33 KST 기준. 원천 기준년월은 응답에서 제공되지 않았습니다.
 
+
+[발표 PDF](docs/presentation.pdf) · [발표 구성](docs/presentation-outline.md) · [검증 기록](docs/verification.md)
