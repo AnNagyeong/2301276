@@ -1,1 +1,202 @@
-[{"id":"seongsu","name":"성수역","lat":37.544581,"lon":127.055961,"radius":1000},{"id":"hongdae","name":"홍대입구역","lat":37.557192,"lon":126.925381,"radius":1000},{"id":"gangnam","name":"강남역","lat":37.497952,"lon":127.027619,"radius":1000}]
+[
+  {
+    "id": "seongsu",
+    "name": "성수역",
+    "lat": 37.544581,
+    "lon": 127.055961,
+    "radius": 1000,
+    "district": "성동구"
+  },
+  {
+    "id": "hongdae",
+    "name": "홍대입구역",
+    "lat": 37.557192,
+    "lon": 126.925381,
+    "radius": 1000,
+    "district": "마포구"
+  },
+  {
+    "id": "gangnam",
+    "name": "강남역",
+    "lat": 37.497952,
+    "lon": 127.027619,
+    "radius": 1000,
+    "district": "강남구"
+  },
+  {
+    "id": "hyehwa",
+    "name": "혜화역",
+    "district": "종로구",
+    "lat": 37.582336,
+    "lon": 127.001844,
+    "radius": 1000
+  },
+  {
+    "id": "euljiro3",
+    "name": "을지로3가역",
+    "district": "중구",
+    "lat": 37.566306,
+    "lon": 126.991696,
+    "radius": 1000
+  },
+  {
+    "id": "itaewon",
+    "name": "이태원역",
+    "district": "용산구",
+    "lat": 37.534488,
+    "lon": 126.994302,
+    "radius": 1000
+  },
+  {
+    "id": "konkuk",
+    "name": "건대입구역",
+    "district": "광진구",
+    "lat": 37.540373,
+    "lon": 127.069191,
+    "radius": 1000
+  },
+  {
+    "id": "cheongnyangni",
+    "name": "청량리역",
+    "district": "동대문구",
+    "lat": 37.580759,
+    "lon": 127.0483,
+    "radius": 1000
+  },
+  {
+    "id": "sangbong",
+    "name": "상봉역",
+    "district": "중랑구",
+    "lat": 37.595577,
+    "lon": 127.085716,
+    "radius": 1000
+  },
+  {
+    "id": "sungshin",
+    "name": "성신여대입구역",
+    "district": "성북구",
+    "lat": 37.592612,
+    "lon": 127.016441,
+    "radius": 1000
+  },
+  {
+    "id": "suyu",
+    "name": "수유역",
+    "district": "강북구",
+    "lat": 37.638052,
+    "lon": 127.025732,
+    "radius": 1000
+  },
+  {
+    "id": "ssangmun",
+    "name": "쌍문역",
+    "district": "도봉구",
+    "lat": 37.648627,
+    "lon": 127.034709,
+    "radius": 1000
+  },
+  {
+    "id": "nowon",
+    "name": "노원역",
+    "district": "노원구",
+    "lat": 37.65627,
+    "lon": 127.063276,
+    "radius": 1000
+  },
+  {
+    "id": "yeonsinnae",
+    "name": "연신내역",
+    "district": "은평구",
+    "lat": 37.619229,
+    "lon": 126.921038,
+    "radius": 1000
+  },
+  {
+    "id": "sinchon",
+    "name": "신촌역",
+    "district": "서대문구",
+    "lat": 37.555131,
+    "lon": 126.936926,
+    "radius": 1000
+  },
+  {
+    "id": "mokdong",
+    "name": "목동역",
+    "district": "양천구",
+    "lat": 37.526065,
+    "lon": 126.864931,
+    "radius": 1000
+  },
+  {
+    "id": "balsan",
+    "name": "발산역",
+    "district": "강서구",
+    "lat": 37.558598,
+    "lon": 126.837668,
+    "radius": 1000
+  },
+  {
+    "id": "gurodigital",
+    "name": "구로디지털단지역",
+    "district": "구로구",
+    "lat": 37.485266,
+    "lon": 126.901401,
+    "radius": 1000
+  },
+  {
+    "id": "gasandigital",
+    "name": "가산디지털단지역",
+    "district": "금천구",
+    "lat": 37.481581,
+    "lon": 126.882581,
+    "radius": 1000
+  },
+  {
+    "id": "yeongdeungpo",
+    "name": "영등포역",
+    "district": "영등포구",
+    "lat": 37.515504,
+    "lon": 126.907628,
+    "radius": 1000
+  },
+  {
+    "id": "sadang",
+    "name": "사당역",
+    "district": "동작구",
+    "lat": 37.476955,
+    "lon": 126.981651,
+    "radius": 1000
+  },
+  {
+    "id": "seouluniv",
+    "name": "서울대입구역",
+    "district": "관악구",
+    "lat": 37.481247,
+    "lon": 126.952739,
+    "radius": 1000
+  },
+  {
+    "id": "expressbus",
+    "name": "고속터미널역",
+    "district": "서초구",
+    "lat": 37.504891,
+    "lon": 127.004916,
+    "radius": 1000
+  },
+  {
+    "id": "jamsil",
+    "name": "잠실역",
+    "district": "송파구",
+    "lat": 37.513262,
+    "lon": 127.100159,
+    "radius": 1000
+  },
+  {
+    "id": "cheonho",
+    "name": "천호역",
+    "district": "강동구",
+    "lat": 37.53864,
+    "lon": 127.123308,
+    "radius": 1000
+  }
+]

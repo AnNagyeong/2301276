@@ -1,5 +1,10 @@
 import {XMLParser,XMLValidator} from 'fast-xml-parser';
 export class ApiError extends Error {constructor(kind){super(kind);this.kind=kind;}}
+export function selectSeoulItems(items){
+ if(items.some(x=>!String(x.ctprvnCd??'').trim()))throw new ApiError('CITY_CODE_MISSING');
+ const selected=items.filter(x=>String(x.ctprvnCd)==='11');
+ return {items:selected,outsideSeoul:items.length-selected.length};
+}
 export function parseResponse(text){
   let data;try{if(text.trim().startsWith('<')){if(XMLValidator.validate(text)!==true)throw Error();data=new XMLParser({ignoreAttributes:true,parseTagValue:false}).parse(text);}else data=JSON.parse(text);}catch{throw new ApiError('PARSE_ERROR');}
   if(data.OpenAPI_ServiceResponse)throw new ApiError('AUTH_OR_SERVICE_ERROR');

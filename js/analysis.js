@@ -17,7 +17,7 @@ try{
  else $('distribution').parentElement.textContent='반경 내 점포가 없습니다. 다양성은 계산할 수 없습니다.';
  table($('distribution-table'),['소분류 업종','점포 수','비율'],result.distribution.map(g=>[g.name,num(g.count),num(g.count/result.total*100,1)+'%']));
  $('interpretation').textContent=`분석 반경의 면적은 ${num(result.area,3)}km²이며, ${category} ${num(result.competitors)}곳의 밀도는 ${num(result.density,1)}곳/km²입니다. `+(result.total?`관측된 ${result.distribution.length}개 소분류의 정규화 다양성은 ${num(result.diversity,3)}입니다.`:'데이터가 없어 다양성은 계산할 수 없습니다.');
- $('quality').textContent=`1km 수집 범위: API 전체 ${num(data.apiTotal)}건 / 수집 ${num(data.rawCount)}건 / 유효 ${num(data.validCount)}건 · 중복 ${data.duplicates}건, 제외 ${data.invalid}건. `+(data.invalid?'제외 데이터가 있어 유효 점포 기준 통계입니다.':'유효 점포 전체를 분석 반경으로 다시 필터링했습니다.');
+ $('quality').textContent=`1km 수집 범위: API 전체 ${num(data.apiTotal)}건 / 수집 ${num(data.rawCount)}건 / 서울 유효 ${num(data.validCount)}건 · 서울 외 제외 ${data.outsideSeoul||0}건, 중복 ${data.duplicates}건, 오류 제외 ${data.invalid}건. 밀도는 서울 점포 수 / 전체 원 면적으로, 서울 경계의 영향을 받을 수 있습니다.`;
  $('csv').disabled=false;$('csv').onclick=()=>{const escape=x=>'"'+String(x).replace(/^[=+@\-\t\r]/,"'"+'$&').replaceAll('"','""')+'"';const rows=[['상가업소번호','상호','업종코드','업종','주소','위도','경도'],...result.rows.map(s=>[s.id,s.name,s.code,s.category,s.address,s.lat,s.lon])];const url=URL.createObjectURL(new Blob(['\ufeff'+rows.map(r=>r.map(escape).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='상권분석.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
  $('compare-link').href='./compare.html?'+new URLSearchParams({region:id,radius,code});
  setupRecommendations(meta,data,radius,result);

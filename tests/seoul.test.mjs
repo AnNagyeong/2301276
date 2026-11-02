@@ -1,0 +1,5 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';
+import {selectSeoulItems} from '../scripts/api.mjs';
+test('only Seoul city code retained; other provinces excluded',()=>{const a={ctprvnCd:'11'},b={ctprvnCd:41},c={ctprvnCd:11};const r=selectSeoulItems([a,b,c]);assert.deepEqual(r.items,[a,c]);assert.equal(r.outsideSeoul,1);});
+test('missing administrative city code prevents unverified Seoul statistics',()=>{assert.throws(()=>selectSeoulItems([{}]),/CITY_CODE_MISSING/);assert.deepEqual(selectSeoulItems([]),{items:[],outsideSeoul:0});});
+test('25 distinct Seoul district centers with unique IDs and supported radius',async()=>{const r=JSON.parse(await readFile(new URL('../data/regions.json',import.meta.url),'utf8'));assert.equal(r.length,25);assert.equal(new Set(r.map(x=>x.id)).size,25);assert.equal(new Set(r.map(x=>x.district)).size,25);for(const x of r){assert.ok(x.lat>37.4&&x.lat<37.75);assert.ok(x.lon>126.7&&x.lon<127.2);assert.equal(x.radius,1000);}});
