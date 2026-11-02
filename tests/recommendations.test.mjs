@@ -1,0 +1,9 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {recommend,startupCategory} from '../js/recommendations.js';
+const summary=(total,groups,area=1)=>({total,area,distribution:groups.map(([code,count])=>({code,name:code,count}))});
+test('recommendation requires both share and density deficit',()=>{const a=summary(100,[['A',2],['B',20]]),b=summary(100,[['A',10],['B',10]]);const r=recommend(a,b);assert.equal(r.length,1);assert.equal(r[0].code,'A');assert.equal(r[0].shareGap,.8);});
+test('less density alone is insufficient when total market is smaller',()=>{assert.equal(recommend(summary(30,[['A',6]]),summary(100,[['A',10]])).length,0);});
+test('empty or small sample withheld; rare reference industry excluded',()=>{assert.deepEqual(recommend(summary(0,[]),summary(100,[['A',10]])),[]);assert.deepEqual(recommend(summary(100,[['A',1]]),summary(100,[['A',9]])),[]);assert.deepEqual(recommend(summary(29,[['A',1]]),summary(100,[['A',10]])),[]);});
+test('zero local stores withheld; supported candidates limited to three',()=>{assert.deepEqual(recommend(summary(100,[]),summary(100,[['A',10]])),[]);const r=recommend(summary(100,[['A',1],['B',1],['C',1],['D',1]]),summary(100,[['A',10],['B',11],['C',12],['D',13]]));assert.equal(r.length,3);assert.equal(r[0].code,'D');});
+test('20 percent boundary included and no candidate padding',()=>{const r=recommend(summary(100,[['A',8]]),summary(100,[['A',10]]));assert.equal(r.length,1);});
+test('consumer category filter excludes licensed clinics and uninformative other categories',()=>{assert.equal(startupCategory({code:'Q10208',name:'성형외과 의원'}),false);assert.equal(startupCategory({code:'I21201',name:'카페'}),true);assert.equal(startupCategory({code:'I21099',name:'그 외 기타 간이 음식점'}),false);assert.deepEqual(recommend(summary(100,[['A',1]]),summary(100,[['A',10]]),3,()=>false),[]);});

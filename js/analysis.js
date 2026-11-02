@@ -1,6 +1,7 @@
 import {analyze} from './algorithms.js';
 import {$,json,status,fail,snapshot,num,chart,table} from './ui.js';
 import {makeMap,markers} from './map.js';
+import {setupRecommendations} from './recommendation-cards.js';
 try{
  const meta=await json('./data/metadata.json');status(meta);const q=new URLSearchParams(location.search),id=q.get('region')||meta.regions[0]?.id,radius=Number(q.get('radius')||500);
  if(!meta.regions.length)throw Error('아직 분석할 실제 데이터가 없습니다. 검색 페이지의 수집 안내를 확인하세요.');
@@ -19,4 +20,5 @@ try{
  $('quality').textContent=`1km 수집 범위: API 전체 ${num(data.apiTotal)}건 / 수집 ${num(data.rawCount)}건 / 유효 ${num(data.validCount)}건 · 중복 ${data.duplicates}건, 제외 ${data.invalid}건. `+(data.invalid?'제외 데이터가 있어 유효 점포 기준 통계입니다.':'유효 점포 전체를 분석 반경으로 다시 필터링했습니다.');
  $('csv').disabled=false;$('csv').onclick=()=>{const escape=x=>'"'+String(x).replace(/^[=+@\-\t\r]/,"'"+'$&').replaceAll('"','""')+'"';const rows=[['상가업소번호','상호','업종코드','업종','주소','위도','경도'],...result.rows.map(s=>[s.id,s.name,s.code,s.category,s.address,s.lat,s.lon])];const url=URL.createObjectURL(new Blob(['\ufeff'+rows.map(r=>r.map(escape).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='상권분석.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
  $('compare-link').href='./compare.html?'+new URLSearchParams({region:id,radius,code});
+ setupRecommendations(meta,data,radius,result);
 }catch(e){fail(e);$('interpretation').textContent='실제 데이터가 준비되면 분석 결과를 표시합니다.';$('map').classList.add('empty');$('map').textContent='분석할 점포 데이터가 없습니다.';$('distribution').parentElement.replaceChildren(document.createTextNode('데이터 수집 후 업종 분포가 표시됩니다.'));}

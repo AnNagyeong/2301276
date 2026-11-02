@@ -4,7 +4,7 @@ try{
  const meta=await json('./data/metadata.json');status(meta);const q=new URLSearchParams(location.search),regions=meta.regions.filter(r=>r.complete);
  if(regions.length<2)throw Error('비교에는 동일한 수집 배치의 완전 수집 지역이 2곳 이상 필요합니다.');
  const data=await Promise.all(regions.map(r=>snapshot(meta,r.id)));
- options($('region-a'),regions,q.get('region')||regions[0].id);options($('region-b'),regions,regions.find(r=>r.id!==$('region-a').value).id);
+ options($('region-a'),regions,q.get('region')||regions[0].id);options($('region-b'),regions,q.get('peer')||regions.find(r=>r.id!==$('region-a').value).id);
  options($('industry'),categories(data.flatMap(r=>r.stores)),q.get('code'));if(['300','500','1000'].includes(q.get('radius')))$('radius').value=q.get('radius');$('compare-button').disabled=false;
  let plot;
  function update(e){e?.preventDefault();const a=data.find(r=>r.id===$('region-a').value),b=data.find(r=>r.id===$('region-b').value),radius=Number($('radius').value),code=$('industry').value;
