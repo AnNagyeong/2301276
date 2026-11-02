@@ -13,7 +13,7 @@ export async function setupSimilarity(meta,data,radius,result,selectedCode){
   function select(index){
    const {profile,explanation}=ranked[index];
    [...choices.children].forEach((button,i)=>button.setAttribute('aria-pressed',String(i===index)));
-   detail.hidden=false;$('similar-title').textContent=`${data.name}와 ${profile.name}, 어떤 비중이 닮았을까요?`;
+   detail.hidden=false;$('similar-title').textContent=`${data.name} ↔ ${profile.name} · 닮은 비중과 다른 비중`;
    $('similar-legend-a').textContent=data.name;$('similar-legend-b').textContent=profile.name;
    const shared=explanation.shared.slice(0,6),bars=$('similar-bars');bars.replaceChildren();
    const max=Math.max(.01,...shared.flatMap(g=>[g.shareA,g.shareB]));
