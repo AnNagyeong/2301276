@@ -1,0 +1,9 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {explainSimilarity,similarRegions} from '../js/similarity.js';
+const profile=(id,counts,radius=500)=>({id,radius,total:counts.reduce((s,x)=>s+x[1],0),distribution:counts.map(([code,count])=>({code,name:code,count}))});
+test('same proportions score one even with different shop totals',()=>{const x=explainSimilarity(profile('a',[['X',30],['Y',70]]),profile('b',[['Y',140],['X',60]]));assert.ok(Math.abs(x.score-1)<1e-12);});
+test('disjoint categories score zero; shared zeros never add similarity',()=>{const r=explainSimilarity(profile('a',[['X',100],['Z',0]]),profile('b',[['Y',100],['Z',0]]));assert.equal(r.score,0);assert.equal(r.shared.length,0);});
+test('empty profiles are not calculable',()=>assert.equal(explainSimilarity(profile('a',[]),profile('b',[['X',100]])),null));
+test('per-industry contributions add to cosine and relative contributions sum one',()=>{const x=explainSimilarity(profile('a',[['A',40],['B',60]]),profile('b',[['A',60],['B',20],['C',20]]));assert.ok(Math.abs(x.rows.reduce((s,g)=>s+g.contribution,0)-x.score)<1e-12);assert.ok(Math.abs(x.shared.reduce((s,g)=>s+g.contributionShare,0)-1)<1e-12);assert.equal(x.differences.find(g=>g.code==='C').gapPoints,-20);});
+test('ranking excludes self, other radius and samples below 30, returns top three',()=>{const a=profile('a',[['X',100]]),b=profile('b',[['X',80],['Y',20]]),c=profile('c',[['Y',100]]),d=profile('d',[['X',100]]);const ranked=similarRegions(a,[a,b,c,d,profile('small',[['X',20]]),profile('other',[['X',100]],300)]);assert.deepEqual(ranked.map(x=>x.profile.id),['d','b','c']);});
+test('similarity and explanations symmetric except signed share difference',()=>{const a=profile('a',[['A',25],['B',75]]),b=profile('b',[['A',50],['B',50]]),x=explainSimilarity(a,b),y=explainSimilarity(b,a);assert.equal(x.score,y.score);assert.equal(x.rows[0].gapPoints,-y.rows[0].gapPoints);});
