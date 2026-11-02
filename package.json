@@ -1,0 +1,1 @@
+{"name":"sangkwon-zip","version":"1.0.0","private":true,"type":"module","scripts":{"test":"node --test","collect":"node --env-file-if-exists=.env scripts/fetch-data.mjs","dev":"node scripts/serve.mjs","build":"node scripts/build.mjs"},"dependencies":{"fast-xml-parser":"^5.3.0"}}
