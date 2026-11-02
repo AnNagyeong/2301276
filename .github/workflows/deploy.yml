@@ -2,6 +2,9 @@ name: Collect and deploy Pages
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
   workflow_dispatch:
 permissions:
   contents: read
