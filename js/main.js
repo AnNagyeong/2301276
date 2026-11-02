@@ -10,7 +10,8 @@ try{
   const entry=meta.regions.find(x=>x.id===r.id);if(!entry?.complete){options($('industry'),[{id:'',name:'실제 데이터 수집 후 선택 가능'}]);return;}
   const data=await snapshot(meta,r.id);if(current!==sequence)return;options($('industry'),categories(data.stores),old.code);$('start').disabled=!$('industry').value;
  }
- $('region').addEventListener('change',()=>update().catch(fail));$('radius').addEventListener('change',()=>update().catch(fail));await update();
+ $('region').addEventListener('change',()=>update().catch(fail));$('radius').addEventListener('change',()=>update().catch(fail));
  $('district').addEventListener('change',()=>{options($('region'),regions.filter(r=>$('district').value==='all'||r.district===$('district').value));update().catch(fail);});
+ await update();
  $('search').addEventListener('submit',e=>{e.preventDefault();const values={region:$('region').value,code:$('industry').value,radius:$('radius').value};remember(values);location.href='./analysis.html?'+new URLSearchParams(values);});
 }catch(e){fail(e);}

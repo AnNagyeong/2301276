@@ -18,6 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       - uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -32,8 +34,12 @@ jobs:
             data/snapshots
           key: snapshot-${{ github.run_id }}
           restore-keys: snapshot-
+      - name: Check collection requirements
+        id: snapshot
+        run: node scripts/needs-collection.mjs
       - name: Collect real API data
         id: collect
+        if: github.event_name == 'workflow_dispatch' || steps.snapshot.outputs.collect == 'true'
         continue-on-error: true
         run: npm run collect
         env:
@@ -52,7 +58,7 @@ jobs:
         with:
           path: dist
       - name: Collection warning
-        if: steps.collect.outcome != 'success'
+        if: steps.collect.outcome == 'failure'
         run: echo '::warning::Collection failed. Published snapshot is stale or unavailable; see on-page status.'
   deploy:
     needs: build
