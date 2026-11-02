@@ -8,7 +8,7 @@ export function haversine(a,b) {
 export function clean(items) {
   const seen=new Set(), stores=[]; let invalid=0,duplicates=0;
   for(const x of items){
-    const p={id:String(x.bizesId??''),name:String(x.bizesNm??''),lat:x.lat===''?NaN:Number(x.lat),lon:x.lon===''?NaN:Number(x.lon),code:String(x.indsSclsCd??''),category:String(x.indsSclsNm??''),address:String(x.rdnmAdr||x.lnoAdr||'')};
+    const p={id:String(x.bizesId??'').trim(),name:String(x.bizesNm??''),lat:String(x.lat??'').trim()===''?NaN:Number(x.lat),lon:String(x.lon??'').trim()===''?NaN:Number(x.lon),code:String(x.indsSclsCd??'').trim(),category:String(x.indsSclsNm??''),address:String(x.rdnmAdr||x.lnoAdr||'')};
     if(!p.id||!p.code||x.lat==null||x.lon==null||!validPoint(p)){invalid++;continue;}
     if(seen.has(p.id)){duplicates++;continue;} seen.add(p.id);stores.push(p);
   }return {stores,invalid,duplicates};

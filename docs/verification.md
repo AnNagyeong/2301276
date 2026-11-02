@@ -14,3 +14,7 @@
 
 - 390×844 모바일과 1440×1000 데스크톱에서 검색/분석/비교 페이지의 빈 상태와 페이지 이동 확인. 실제 수집 데이터 기반 화면은 미검증.
 - 발표 PDF 6페이지 생성 후 PNG 렌더링으로 한글, 레이아웃과 페이지 구분 확인.
+
+- GitHub Actions 41420721988: 배포 성공. 수집은 KEY_MISSING으로 실패했고 경고/빈 상태가 배포됨.
+- https://annagyeong.github.io/2301276/ 의 index.html, analysis.html, compare.html 모두 HTTP 200 확인.
+- 인증키 Repository Secret 수정 후 재수집이 필요함.

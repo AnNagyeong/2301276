@@ -12,16 +12,17 @@ export function parseResponse(text){
   if(items===''||items==null)items=[];
   if(!Array.isArray(items))items=[items];
   const total=Number(body.totalCount);if(!Number.isInteger(total)||total<0)throw new ApiError('SCHEMA_ERROR');
-  return {items,total};
+  const referenceMonths=[...new Set([body.stdrYm,...items.map(x=>x.stdrYm)].filter(x=>x!=null&&String(x).trim()).map(String))];
+  return {items,total,referenceMonths};
 }
 export async function collectPages(request,{limit=1000,maxPages=100}={}){
-  const items=[];let total=null,pages=0;
+  const items=[],months=new Set();let total=null,pages=0;
   for(let page=1;page<=maxPages;page++){
     const result=await request(page,limit);pages++;
     if(total===null)total=result.total;
     if(result.total!==total)throw new ApiError('DATA_CHANGED');
-    items.push(...result.items);
-    if(items.length>=total){if(items.length!==total)throw new ApiError('COUNT_MISMATCH');return {items,total,pages};}
+    items.push(...result.items);for(const m of result.referenceMonths||[])months.add(m);
+    if(items.length>=total){if(items.length!==total)throw new ApiError('COUNT_MISMATCH');return {items,total,pages,referenceMonths:[...months].sort()};}
     if(!result.items.length)throw new ApiError('INCOMPLETE_DATA');
   }throw new ApiError('PAGE_LIMIT');
 }

@@ -19,7 +19,7 @@ try{
    return parseResponse(await response.text());
   });
   const normalized=clean(result.items),file=`data/snapshots/${batch}-${region.id}.json`;
-  const referenceMonths=[...new Set(result.items.map(x=>String(x.stdrYm||'')).filter(Boolean))].sort();
+  const referenceMonths=result.referenceMonths;
   const entry={...region,file,referenceMonths,apiTotal:result.total,rawCount:result.items.length,validCount:normalized.stores.length,invalid:normalized.invalid,duplicates:normalized.duplicates,pages:result.pages,complete:true};
   await writeFile(path(file),JSON.stringify({batch,stores:normalized.stores}));entries.push(entry);
  }

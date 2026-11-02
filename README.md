@@ -63,3 +63,5 @@ npm run dev
 
 발표 초안은 docs/presentation-outline.md에 있습니다. 배포 확인 전 URL이나 실제 통계를 확정된 결과로 기재하지 않습니다.
 
+
+현재 Pages: https://annagyeong.github.io/2301276/ (배포 성공, 실제 수집은 KEY_MISSING으로 실패). 인증키 설정 후 다시 실행해야 실제 분석을 사용할 수 있습니다.
